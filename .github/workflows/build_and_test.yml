@@ -1,32 +1,14 @@
+#testing on ubuntu
 name: build
 
 on:
   push:
-    paths-ignore:
-      - 'docs/**'
-      - 'conda/**'
-      - 'scripts/**'
-      - 'example/**'
-      - '**.md'
-      - '**.yaml'
-      - '**.yml'
     branches:
       - 'master'
       - '*release*'
-      - 'release/**'
-      - 'main'
   pull_request:
-    paths-ignore:
-      - 'docs/**'
-      - 'conda/**'
-      - 'scripts/**'
-      - 'example/**'
-      - '**.md'
-      - '**.yaml'
-      - '**.yml'
     branches:
       - 'master'
-      - 'main'
 
 jobs:
   
