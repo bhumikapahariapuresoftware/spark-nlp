@@ -103,6 +103,7 @@ jobs:
             ls && \
             python3 -m pip install --upgrade pip && \
             python3 -m pip install pyspark==3.2.0 numpy && \
+            export SPARK_HOME=/ws/.env/bin/pyspark && \
             whereis pyspark && \
 
 
@@ -121,6 +122,8 @@ jobs:
             python --version && \
             java -version && \
             cd python && \
+            python3 -m pip install pyspark==3.2.0 numpy && \
+            export SPARK_HOME=/ws/.env/bin/pyspark && \
             python3.7 -m run-tests && \
             deactivate'
 
