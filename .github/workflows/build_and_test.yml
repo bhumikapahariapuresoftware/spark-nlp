@@ -115,8 +115,6 @@ jobs:
             sbt clean && \
             sbt compile && \
             sbt -mem 4096 -Dis_spark32=true assemblyAndCopy && \
-            
-            sbt -mem 4096 -Dis_spark32=true coverage test && \
               
             pwd && \
             ls && \
