@@ -97,11 +97,12 @@ jobs:
             echo $JAVA_HOME && \
             python --version && \
       
-            yum install -y lsb-core && \
+            yum update && yum install -y redhat-lsb-core && \
             lsb_release -sirc && \
             cat /etc/os-release && \
             cat /etc/issue && \
             cat /proc/version && \
+            lsb_release -a && \
             
             
             
@@ -109,8 +110,12 @@ jobs:
             ls && \
             python3 -m pip install --upgrade pip && \
             python3 -m pip install pyspark==3.2.0 numpy && \
-            export SPARK_HOME=/ws/.env/bin/pyspark && \
+            python3 -m pip install findspark  && \
+            python3 -m pip show pyspark && \
             whereis pyspark && \
+            
+            export SPARK_HOME=/ws/.env/bin/pyspark && \
+            export PYTHONPATH=$SPARK_HOME/python:$SPARK_HOME/python/build:$PYTHONPATH && \
 
 
              
