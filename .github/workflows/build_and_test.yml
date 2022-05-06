@@ -105,15 +105,12 @@ jobs:
             python3 -m pip install pyspark==3.2.0 numpy && \
             whereis pyspark && \
 
-            wget http://downloads.lightbend.com/scala/2.11.8/scala-2.11.8.rpm && \
-            yum install -y scala-2.11.8.rpm && \
+
              
-            curl https://bintray.com/sbt/rpm/rpm | tee /etc/yum.repos.d/bintray-sbt-rpm.repo && \
-            rm file:///etc/yum.repos.d/bintray-sbt-rpm.repo && \
-            rm -rf /etc/yum.repos.d/CentOS-Base.repo && \
-            wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo && \
-            yum clean all && \
-            yum makecache && \
+
+            rm -f /etc/yum.repos.d/bintray-rpm.repo && \
+            curl -L https://www.scala-sbt.org/sbt-rpm.repo > sbt-rpm.repo && \
+            mv sbt-rpm.repo /etc/yum.repos.d/ && \
             yum install -y sbt && \
             sbt clean && \
             sbt compile && \
@@ -128,3 +125,8 @@ jobs:
             cd python && \
             python3.7 -m run-tests && \
             deactivate'
+
+
+
+#wget http://downloads.lightbend.com/scala/2.11.8/scala-2.11.8.rpm && \
+#yum install -y scala-2.11.8.rpm && \
