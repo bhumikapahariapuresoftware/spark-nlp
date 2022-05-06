@@ -1,17 +1,133 @@
-#testing on ubuntu
 name: build
 
 on:
   push:
+    paths-ignore:
+      - 'docs/**'
+      - 'conda/**'
+      - 'scripts/**'
+      - 'example/**'
+      - '**.md'
+      - '**.yaml'
+      - '**.yml'
     branches:
       - 'master'
       - '*release*'
+      - 'release/**'
+      - 'main'
   pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - 'conda/**'
+      - 'scripts/**'
+      - 'example/**'
+      - '**.md'
+      - '**.yaml'
+      - '**.yml'
     branches:
       - 'master'
+      - 'main'
 
 jobs:
-  
+  spark23:
+    if: "! contains(toJSON(github.event.commits.*.message), '[skip test]')"
+    runs-on: macos-latest
+    name: Build and Test on Apache Spark 2.3.x
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Install Python 3.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7.7
+          architecture: x64
+      - name: Install Python packages (Python 3.7)
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyspark==2.3.4 numpy
+      - name: Build Spark NLP on Apache Spark 2.3.x
+        run: |
+          brew install sbt
+          sbt -Dis_spark23=true clean
+          sbt -Dis_spark23=true compile
+          sbt -mem 4096 -Dis_spark23=true assemblyAndCopy
+      - name: Test Spark NLP in Scala - Apache Spark 2.3.x
+        run: |
+          sbt -mem 4096 -Dis_spark23=true test
+      - name: Test Spark NLP in Python - Apache Spark 2.3.x
+        run: |
+          cd python
+          python3.7 -m run-tests
+  spark24:
+    if: "! contains(toJSON(github.event.commits.*.message), '[skip test]')"
+    runs-on: macos-latest
+    name: Build and Test on Apache Spark 2.4.x
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Install Python 3.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7.7
+          architecture: x64
+      - name: Install Python packages (Python 3.7)
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyspark==2.4.8 numpy
+      - name: Build Spark NLP on Apache Spark 2.4.x
+        run: |
+          brew install sbt
+          sbt clean
+          sbt compile
+          sbt -mem 4096 -Dis_spark24=true assemblyAndCopy
+      - name: Test Spark NLP in Scala - Apache Spark 2.4.x
+        run: |
+          sbt -mem 4096 -Dis_spark24=true test
+      - name: Test Spark NLP in Python - Apache Spark 2.4.x
+        run: |
+          cd python
+          python3.7 -m run-tests
+  spark30:
+    if: "! contains(toJSON(github.event.commits.*.message), '[skip test]')"
+    runs-on: macos-latest
+    name: Build and Test on Apache Spark 3.0.x
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Install Python 3.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7.7
+          architecture: x64
+      - name: Install Python packages (Python 3.7)
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyspark==3.0.3 numpy
+      - name: Build Spark NLP on Apache Spark 3.0.3
+        run: |
+          brew install sbt
+          sbt clean
+          sbt compile
+          sbt -mem 4096 assemblyAndCopy
+      - name: Test Spark NLP in Scala - Apache Spark 3.0.x
+        run: |
+          sbt -mem 4096 test
+      - name: Test Spark NLP in Python - Apache Spark 3.0.x
+        run: |
+          cd python
+          python3.7 -m run-tests
   spark32:
     if: "! contains(toJSON(github.event.commits.*.message), '[skip test]')"
     runs-on: macos-latest
@@ -31,8 +147,8 @@ jobs:
       - name: Install Python packages (Python 3.7)
         run: |
           python -m pip install --upgrade pip
-          pip install pyspark==3.2.0 numpy
-      - name: Build Spark NLP on Apache Spark 3.2.0
+          pip install pyspark==3.2.1 numpy
+      - name: Build Spark NLP on Apache Spark 3.2.1
         run: |
           brew install sbt
           sbt clean
@@ -50,95 +166,3 @@ jobs:
         run: |
           cd python
           python3.7 -m run-tests
-
-  spark_armv64_job:
-    if: "! contains(toJSON(github.event.commits.*.message), '[skip ci]')"
-    name: Build and Test on Apache Spark 3.2.x for arm64
-    strategy:
-      matrix:
-        pyver: [cp37-cp37m]
-    runs-on: ubuntu-18.04
-    env:
-      py: /opt/python/${{ matrix.pyver }}/bin/python
-      img: quay.io/pypa/manylinux2014_aarch64  
-    
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up QEMU
-        id: qemu
-        uses: docker/setup-qemu-action@v1
-      #- name: Set up JDK 8
-      #  uses: actions/setup-java@v1
-      #  with:
-      #    java-version: 1.8
-      #- name: Install Python 3.7
-      #  uses: actions/setup-python@v2
-      #  with:
-      #    python-version: 3.7.7
-      #    architecture: arm64   
-      - name: Install and Run tests
-        run: |
-          docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
-            ${{ env.img }} \
-            bash -exc '${{ env.py }} -m pip install virtualenv && ${{ env.py }} -m venv .env && \
-            source .env/bin/activate && \
-            python -m pip install --upgrade pip && \
-            python --version && \
-            yum -y install java-1.8.0-openjdk && \
-            yum install -y java-1.8.0-openjdk-devel && \
-            yum install -y wget curl && \
-            uname -m && \
-            
-            whoami && \
-            echo $PATH && \
-            
-            java -version && \
-            
-            echo $JAVA_HOME && \
-            python --version && \
-      
-            yum update && yum install -y redhat-lsb-core && \
-            lsb_release -sirc && \
-            cat /etc/os-release && \
-            cat /etc/issue && \
-            cat /proc/version && \
-            lsb_release -a && \
-            
-            
-            
-            pwd && \
-            ls && \
-            python3 -m pip install --upgrade pip && \
-            python3 -m pip install pyspark==3.2.0 numpy && \
-            python3 -m pip install findspark  && \
-            python3 -m pip show pyspark && \
-            whereis pyspark && \
-            
-            export SPARK_HOME=/ws/.env/bin/pyspark && \
-            export PYTHONPATH=$SPARK_HOME/python:$SPARK_HOME/python/build:$PYTHONPATH && \
-
-
-             
-
-            rm -f /etc/yum.repos.d/bintray-rpm.repo && \
-            curl -L https://www.scala-sbt.org/sbt-rpm.repo > sbt-rpm.repo && \
-            mv sbt-rpm.repo /etc/yum.repos.d/ && \
-            yum install -y sbt && \
-            sbt clean && \
-            sbt compile && \
-            sbt -mem 4096 -Dis_spark32=true assemblyAndCopy && \
-              
-            pwd && \
-            ls && \
-            python --version && \
-            java -version && \
-            cd python && \
-            python3 -m pip install pyspark==3.2.0 numpy && \
-            export SPARK_HOME=/ws/.env/bin/pyspark && \
-            python3.7 -m run-tests && \
-            deactivate'
-
-
-
-#wget http://downloads.lightbend.com/scala/2.11.8/scala-2.11.8.rpm && \
-#yum install -y scala-2.11.8.rpm && \
