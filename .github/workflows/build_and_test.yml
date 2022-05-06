@@ -111,7 +111,7 @@ jobs:
             curl https://bintray.com/sbt/rpm/rpm | tee /etc/yum.repos.d/bintray-sbt-rpm.repo && \
             rm -rf file:///etc/yum.repos.d/bintray-sbt-rpm.repo && \
             rm -rf /etc/yum.repos.d/CentOS-Base.repo && \
-            wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/CentOS-7.repo && \
+            wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo && \
             yum clean all && \
             yum makecache && \
             yum install -y sbt && \
