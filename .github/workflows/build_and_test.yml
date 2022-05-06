@@ -97,7 +97,7 @@ jobs:
             echo $JAVA_HOME && \
             python --version && \
       
-
+            yum install -y lsb-core && \
             lsb_release -sirc && \
             cat /etc/os-release && \
             cat /etc/issue && \
