@@ -98,6 +98,12 @@ jobs:
             python --version && \
       
 
+            lsb_release -sirc && \
+            cat /etc/os-release && \
+            cat /etc/issue && \
+            cat /proc/version && \
+            
+            
             
             pwd && \
             ls && \
